@@ -38,13 +38,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const path_1 = __importDefault(__nccwpck_require__(1017));
+const path = __importStar(__nccwpck_require__(1017));
+const fs = __importStar(__nccwpck_require__(7147));
 const core = __importStar(__nccwpck_require__(2186));
 const report_1 = __nccwpck_require__(8269);
+function parseFile(filePath) {
+    const content = fs.readFileSync(path.resolve(process.env.GITHUB_WORKSPACE, filePath));
+    return JSON.parse(content.toString());
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
@@ -53,8 +55,7 @@ function run() {
             core.debug(`failedThreshold ${failedThreshold}`);
             const resultPath = core.getInput('resultPath');
             core.debug(`resultPath ${resultPath}`);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-            const json = require(path_1.default.resolve(process.env.GITHUB_WORKSPACE, resultPath));
+            const json = parseFile(resultPath);
             const coveredPercent = (_a = json.result.covered_percent) !== null && _a !== void 0 ? _a : json.result.line;
             if (coveredPercent === undefined) {
                 throw new Error('Coverage is undefined!');

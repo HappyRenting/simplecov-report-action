@@ -1,12 +1,12 @@
-import path from 'path'
+import * as path from 'path'
+import * as fs from 'fs'
 import * as core from '@actions/core'
 import {report} from './report'
 
-interface Result {
-  result: {
-    covered_percent?: number // NOTE: simplecov < 0.21.0
-    line?: number
-  }
+function parseFile(filePath: string) {
+  const content = fs.readFileSync(path.resolve(process.env.GITHUB_WORKSPACE!, filePath))
+
+  return JSON.parse(content.toString())
 }
 
 async function run(): Promise<void> {
@@ -17,8 +17,7 @@ async function run(): Promise<void> {
     const resultPath: string = core.getInput('resultPath')
     core.debug(`resultPath ${resultPath}`)
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-    const json = require(path.resolve(process.env.GITHUB_WORKSPACE!, resultPath)) as Result
+    const json = parseFile(resultPath)
     const coveredPercent = json.result.covered_percent ?? json.result.line
 
     if (coveredPercent === undefined) {
